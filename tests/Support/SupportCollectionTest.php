@@ -816,6 +816,47 @@ class SupportCollectionTest extends TestCase
         })->all());
     }
 
+    public function testUniqueWithObjects()
+    {
+        $c = new Collection([
+            new class { public $a = 'same'; },
+            new class { public $a = 'same'; },
+        ]);
+
+        $this->assertEquals(1, $c->unique('a')->count());
+
+        $c = new Collection([
+            new class { public $a = 'same'; },
+            new class { public $a = 'same'; },
+            new class { public $a = 'different'; },
+        ]);
+
+        $this->assertEquals(2, $c->unique('a')->count());
+    }
+
+
+    // What should we expect?
+    public function testUniqueWithObjectsWithPrivateAttributes()
+    {
+        $c = new Collection([
+            new class { private $a = 'same'; },
+            new class { private $a = 'same'; },
+        ]);
+
+        // This PASSES
+        $this->assertEquals(1, $c->unique('a')->count());
+
+        $c = new Collection([
+            new class { private $a = 'same'; },
+            new class { private $a = 'same'; },
+            new class { private $a = 'different'; },
+        ]);
+
+        // This FAILS with count == 1
+        // Why 1 ?
+        $this->assertEquals(2, $c->unique('a')->count());
+    }
+
     public function testUniqueStrict()
     {
         $c = new Collection([
